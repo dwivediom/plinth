@@ -1,3 +1,4 @@
+/// <reference types="vitest/config" />
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import { readFileSync } from "node:fs";
@@ -18,4 +19,7 @@ export default defineConfig({
     watch: { ignored: ["**/src-tauri/**", "**/target/**"] },
   },
   build: { target: ["es2022", "safari16"], sourcemap: true },
+  // The logic worth testing here is pure: parsers, indexes, planners. They
+  // need no DOM, and keeping the environment node-shaped keeps them fast.
+  test: { environment: "node", include: ["src/**/*.test.ts"] },
 });
