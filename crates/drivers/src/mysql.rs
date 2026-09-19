@@ -24,7 +24,22 @@ const SYSTEM_SCHEMAS: [&str; 4] = ["information_schema", "mysql", "performance_s
 
 /// Catalog rows are decoded through the wire decoder so integer widths and
 /// signedness differences between MySQL and MariaDB do not matter.
+/// A name read from the server, as opposed to a value shown in the grid.
+///
+/// The two want different things from the same bytes. `SHOW DATABASES` and the
+/// other `SHOW` statements return their columns with the binary collation, so
+/// `decode_mysql` — correctly, for a grid, where a blob has no safe textual
+/// form — base64-encodes them: `information_schema` came back as
+/// `aW5mb3JtYXRpb25fc2NoZW1h`, and the database switcher listed that. So text
+/// is read as text here first, and the display form is the fallback rather
+/// than the rule.
 fn cell_str(row: &MySqlRow, idx: usize) -> Option<String> {
+    if let Ok(s) = row.try_get::<Option<String>, _>(idx) {
+        return s;
+    }
+    if let Ok(Some(b)) = row.try_get::<Option<Vec<u8>>, _>(idx) {
+        return String::from_utf8(b).ok();
+    }
     match decode_mysql(row, idx) {
         Cell::String(s) => Some(s),
         Cell::Number(n) => Some(n.to_string()),
