@@ -65,6 +65,19 @@ jobs:
       - uses: tauri-apps/tauri-action@v0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Signing and notarisation, macOS only. Every one of these is a
+          # repository secret; when they are unset the step still runs and
+          # produces an ad-hoc signed .dmg, which is what shipped before this
+          # existed. An unsigned build is worth having — it is just one that
+          # tells the person downloading it that the app is damaged.
+          APPLE_CERTIFICATE: ${{ matrix.os == 'macos-latest' && secrets.APPLE_CERTIFICATE || '' }}
+          APPLE_CERTIFICATE_PASSWORD: ${{ matrix.os == 'macos-latest' && secrets.APPLE_CERTIFICATE_PASSWORD || '' }}
+          APPLE_SIGNING_IDENTITY: ${{ matrix.os == 'macos-latest' && secrets.APPLE_SIGNING_IDENTITY || '' }}
+          # Notarisation: Apple staples a ticket to the bundle, which is the
+          # part that actually silences Gatekeeper. Signing alone does not.
+          APPLE_ID: ${{ matrix.os == 'macos-latest' && secrets.APPLE_ID || '' }}
+          APPLE_PASSWORD: ${{ matrix.os == 'macos-latest' && secrets.APPLE_PASSWORD || '' }}
+          APPLE_TEAM_ID: ${{ matrix.os == 'macos-latest' && secrets.APPLE_TEAM_ID || '' }}
         with:
           # Draft, so the release is read before anyone can download it — and
           # so a run that fails on one platform does not publish a release that
@@ -74,8 +87,10 @@ jobs:
           releaseDraft: true
           prerelease: ${{ github.ref_type != 'tag' }}
           releaseBody: |
-            Nothing here is signed yet. macOS will say the app is damaged —
-            it is not; right-click the app and choose Open, or run
-            `xattr -dr com.apple.quarantine /Applications/Plinth.app`.
-            Windows SmartScreen will warn once: More info → Run anyway.
+            The Windows build is not signed: SmartScreen will warn once, and
+            the way past it is More info → Run anyway.
+
+            If the macOS signing secrets are not configured, the .dmg is not
+            signed either and macOS will call the app damaged. It is not —
+            right-click the app and choose Open.
           args: ${{ matrix.args }}
