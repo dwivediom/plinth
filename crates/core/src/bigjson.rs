@@ -488,9 +488,9 @@ mod tests {
     fn nesting_is_not_recursion() {
         // The depth that ends a recursive parser. 200k here.
         let mut b = Vec::new();
-        b.extend(std::iter::repeat(b'[').take(200_000));
+        b.extend(std::iter::repeat_n(b'[', 200_000));
         b.push(b'1');
-        b.extend(std::iter::repeat(b']').take(200_000));
+        b.extend(std::iter::repeat_n(b']', 200_000));
         let idx = index_json(&b);
         assert_eq!(idx.nodes.len(), 200_001);
         assert!(idx.issues.is_empty());

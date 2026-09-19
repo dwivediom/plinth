@@ -204,8 +204,8 @@ async fn pg_introspection() {
     // through, so both are correct and the test accepts either.
     assert_eq!(named.columns.len(), 2);
     assert_eq!(named.columns[0], "pid");
-    let expr = named.columns[1].replace('(', "").replace(')', "");
-    assert_eq!(expr, "lower code::text".replace(' ', ""), "unexpected expression index rendering: {}", named.columns[1]);
+    let expr: String = named.columns[1].chars().filter(|c| !matches!(c, '(' | ')')).collect();
+    assert_eq!(expr, "lowercode::text", "unexpected expression index rendering: {}", named.columns[1]);
     assert!(t.indexes.iter().any(|i| i.unique && !i.primary && i.columns == vec!["code".to_string()]));
     let ddl = t.ddl.expect("ddl");
     assert!(ddl.starts_with(&format!("CREATE TABLE \"{s}\".\"child\"")), "{ddl}");

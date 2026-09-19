@@ -1,0 +1,120 @@
+name: CI
+
+# Everything that was previously true only because someone ran it on one Mac.
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  # ── the fast gate: types, unit tests, both languages
+  check:
+    name: Types and unit tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy, rustfmt
+      - uses: Swatinem/rust-cache@v2
+
+      - run: npm ci
+      - name: TypeScript
+        run: npx tsc --noEmit
+      - name: Frontend tests
+        run: npx vitest run
+      - name: Frontend build
+        run: npx vite build
+
+      # `cargo fmt --check` is deliberately absent. The codebase is
+      # hand-formatted and rustfmt would rewrite roughly 460 hunks of it;
+      # adopting it is a style decision that deserves its own commit, not a
+      # silent reformat smuggled in with the CI. Clippy, which finds real
+      # problems rather than shapes, is enforced.
+      - name: Rust lints
+        run: cargo clippy --workspace --all-targets -- -D warnings
+      - name: Rust tests
+        run: cargo test --workspace
+
+  # ── the tests that need a real server. These exist for Postgres, MySQL and
+  #    SQLite and were behind env vars nobody set; MySQL in particular has
+  #    never run anywhere else, because this machine has no MySQL on it.
+  drivers:
+    name: Driver tests against real servers
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        # pgvector, so the vector decoding tests run rather than skip.
+        image: pgvector/pgvector:pg17
+        env:
+          POSTGRES_PASSWORD: plinth
+          POSTGRES_DB: plinth_test
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s --health-timeout 5s --health-retries 20
+      mysql:
+        image: mysql:8
+        env:
+          MYSQL_ROOT_PASSWORD: plinth
+          MYSQL_DATABASE: plinth_test
+        ports: ["3306:3306"]
+        options: >-
+          --health-cmd "mysqladmin ping -h 127.0.0.1 -uroot -pplinth"
+          --health-interval 5s --health-timeout 5s --health-retries 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+
+      - name: Postgres
+        env:
+          PLINTH_TEST_PG_URL: postgres://postgres:plinth@127.0.0.1:5432/plinth_test
+        run: cargo test -p plinth-drivers --test postgres -- --ignored --test-threads=1
+
+      - name: MySQL
+        env:
+          PLINTH_TEST_MYSQL_URL: mysql://root:plinth@127.0.0.1:3306/plinth_test
+        run: cargo test -p plinth-drivers --test mysql -- --ignored --test-threads=1
+
+      - name: SQLite and dialects
+        run: cargo test -p plinth-drivers --test sqlite --test dialects
+
+  # ── the claim that needed proving: this builds somewhere other than a Mac
+  build:
+    name: Build on ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-latest, windows-latest, ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+
+      - name: Linux system dependencies
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev libgtk-3-dev librsvg2-dev \
+            libayatana-appindicator3-dev patchelf libssl-dev
+
+      - run: npm ci
+      - run: npx vite build
+      # Compiling the shell is what proves the platform gates are right. The
+      # bundle itself is a release concern, not a per-push one.
+      - name: Compile the app
+        run: cargo build --workspace --locked

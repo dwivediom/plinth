@@ -1,4 +1,3 @@
-import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import type { SchemaIndex } from "../ipc/types";
 import { parsePlan } from "./explain";
@@ -9,7 +8,10 @@ import { createIndexSql, describeGain, indexCandidates, predicateColumns, sortCo
  * Postgres 17 against a 500,000-row table — not a handwritten plan. Plans are
  * the one input where inventing the shape defeats the purpose.
  */
-const planJson = readFileSync(new URL("./__fixtures__/plan-seq-scan.json", import.meta.url), "utf8");
+// Imported rather than read from disk: the app's tsconfig has no node types
+// on purpose, so that app code cannot reach for `fs` and break in the webview.
+import planFixture from "./__fixtures__/plan-seq-scan.json";
+const planJson = JSON.stringify(planFixture);
 
 const schema = {
   schemas: [],
