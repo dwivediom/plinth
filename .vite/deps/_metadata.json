@@ -1,0 +1,160 @@
+{
+  "hash": "be38654c",
+  "configHash": "f4579339",
+  "lockfileHash": "2bf097f3",
+  "browserHash": "450daefe",
+  "optimized": {
+    "@codemirror/autocomplete": {
+      "src": "../../node_modules/@codemirror/autocomplete/dist/index.js",
+      "file": "@codemirror_autocomplete.js",
+      "fileHash": "36df5f75",
+      "needsInterop": false
+    },
+    "@codemirror/commands": {
+      "src": "../../node_modules/@codemirror/commands/dist/index.js",
+      "file": "@codemirror_commands.js",
+      "fileHash": "687f250e",
+      "needsInterop": false
+    },
+    "@codemirror/lang-sql": {
+      "src": "../../node_modules/@codemirror/lang-sql/dist/index.js",
+      "file": "@codemirror_lang-sql.js",
+      "fileHash": "738469f5",
+      "needsInterop": false
+    },
+    "@codemirror/language": {
+      "src": "../../node_modules/@codemirror/language/dist/index.js",
+      "file": "@codemirror_language.js",
+      "fileHash": "05fef3f3",
+      "needsInterop": false
+    },
+    "@codemirror/search": {
+      "src": "../../node_modules/@codemirror/search/dist/index.js",
+      "file": "@codemirror_search.js",
+      "fileHash": "b2cef4c2",
+      "needsInterop": false
+    },
+    "@codemirror/state": {
+      "src": "../../node_modules/@codemirror/state/dist/index.js",
+      "file": "@codemirror_state.js",
+      "fileHash": "62c01f2d",
+      "needsInterop": false
+    },
+    "@codemirror/view": {
+      "src": "../../node_modules/@codemirror/view/dist/index.js",
+      "file": "@codemirror_view.js",
+      "fileHash": "fc4adc4d",
+      "needsInterop": false
+    },
+    "@dagrejs/dagre": {
+      "src": "../../node_modules/@dagrejs/dagre/dist/dagre.esm.js",
+      "file": "@dagrejs_dagre.js",
+      "fileHash": "110f7aa8",
+      "needsInterop": false
+    },
+    "@lezer/highlight": {
+      "src": "../../node_modules/@lezer/highlight/dist/index.js",
+      "file": "@lezer_highlight.js",
+      "fileHash": "361a3edb",
+      "needsInterop": false
+    },
+    "@replit/codemirror-indentation-markers": {
+      "src": "../../node_modules/@replit/codemirror-indentation-markers/dist/index.js",
+      "file": "@replit_codemirror-indentation-markers.js",
+      "fileHash": "6e3cc0cd",
+      "needsInterop": false
+    },
+    "@tanstack/react-virtual": {
+      "src": "../../node_modules/@tanstack/react-virtual/dist/esm/index.js",
+      "file": "@tanstack_react-virtual.js",
+      "fileHash": "9d7348ae",
+      "needsInterop": false
+    },
+    "@tauri-apps/api/core": {
+      "src": "../../node_modules/@tauri-apps/api/core.js",
+      "file": "@tauri-apps_api_core.js",
+      "fileHash": "7aab0be4",
+      "needsInterop": false
+    },
+    "@tauri-apps/api/event": {
+      "src": "../../node_modules/@tauri-apps/api/event.js",
+      "file": "@tauri-apps_api_event.js",
+      "fileHash": "a5861a50",
+      "needsInterop": false
+    },
+    "@tauri-apps/api/window": {
+      "src": "../../node_modules/@tauri-apps/api/window.js",
+      "file": "@tauri-apps_api_window.js",
+      "fileHash": "b7ad77a1",
+      "needsInterop": false
+    },
+    "@xyflow/react": {
+      "src": "../../node_modules/@xyflow/react/dist/esm/index.js",
+      "file": "@xyflow_react.js",
+      "fileHash": "6046fa0b",
+      "needsInterop": false
+    },
+    "lucide-react": {
+      "src": "../../node_modules/lucide-react/dist/esm/lucide-react.mjs",
+      "file": "lucide-react.js",
+      "fileHash": "12f7b27d",
+      "needsInterop": false
+    },
+    "react": {
+      "src": "../../node_modules/react/index.js",
+      "file": "react.js",
+      "fileHash": "070772a3",
+      "needsInterop": true
+    },
+    "react-dom/client": {
+      "src": "../../node_modules/react-dom/client.js",
+      "file": "react-dom_client.js",
+      "fileHash": "e2a9843a",
+      "needsInterop": true
+    },
+    "react/jsx-dev-runtime": {
+      "src": "../../node_modules/react/jsx-dev-runtime.js",
+      "file": "react_jsx-dev-runtime.js",
+      "fileHash": "59ff62cb",
+      "needsInterop": true
+    },
+    "zustand": {
+      "src": "../../node_modules/zustand/esm/index.mjs",
+      "file": "zustand.js",
+      "fileHash": "6aab5759",
+      "needsInterop": false
+    }
+  },
+  "chunks": {
+    "chunk-XX76PQH4": {
+      "file": "chunk-XX76PQH4.js"
+    },
+    "chunk-YQTFE5VL": {
+      "file": "chunk-YQTFE5VL.js"
+    },
+    "chunk-WE2Q6ASX": {
+      "file": "chunk-WE2Q6ASX.js"
+    },
+    "chunk-YQ2XOENX": {
+      "file": "chunk-YQ2XOENX.js"
+    },
+    "chunk-E7COIVKX": {
+      "file": "chunk-E7COIVKX.js"
+    },
+    "chunk-L4XLODNV": {
+      "file": "chunk-L4XLODNV.js"
+    },
+    "chunk-VMJOYFWK": {
+      "file": "chunk-VMJOYFWK.js"
+    },
+    "chunk-LOWJNYYQ": {
+      "file": "chunk-LOWJNYYQ.js"
+    },
+    "chunk-DQXLTQXY": {
+      "file": "chunk-DQXLTQXY.js"
+    },
+    "chunk-PX6F3LHL": {
+      "file": "chunk-PX6F3LHL.js"
+    }
+  }
+}
