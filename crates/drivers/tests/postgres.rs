@@ -40,6 +40,35 @@ fn col<'a>(m: &'a Materialized, name: &str) -> (usize, &'a ColumnDesc) {
     m.columns.iter().enumerate().find(|(_, c)| c.name == name).unwrap_or_else(|| panic!("column {name}"))
 }
 
+/// The server is the oracle: whatever `value::text` says, the driver must say.
+///
+/// A client that prints `1.5000` where the database prints `1.5` has changed
+/// the number's scale, which for `numeric` is part of the value.
+#[tokio::test]
+#[ignore = "needs PLINTH_TEST_PG_URL; run with --ignored"]
+async fn pg_numeric_scale_matches_the_server() {
+    let Some(d) = connect(false).await else { return };
+    let literals = [
+        "1.5", "1.50", "0.1", "-0.0001", "10000000000000.0001", "2", "2.0",
+        "1e10", "0.000000000000000001", "-12345678901234567890.12345",
+    ];
+    let selects: Vec<String> = literals
+        .iter()
+        .map(|l| format!("SELECT '{l}'::numeric AS v, ('{l}'::numeric)::text AS t, ARRAY['{l}'::numeric] AS a, (ARRAY['{l}'::numeric])::text AS at"))
+        .collect();
+
+    for (lit, sql) in literals.iter().zip(selects) {
+        let m = d.execute(&sql, &QueryOpts::default()).await.expect("execute");
+        let row = &m.rows[0];
+        let (v, _) = col(&m, "v");
+        let (t, _) = col(&m, "t");
+        let (a, _) = col(&m, "a");
+        let expected = row[t].as_str().expect("text").to_string();
+        assert_eq!(row[v], json!(expected), "scalar numeric {lit}");
+        assert_eq!(row[a], json!([expected]), "numeric[] element {lit}");
+    }
+}
+
 #[tokio::test]
 #[ignore = "needs PLINTH_TEST_PG_URL; run with --ignored"]
 async fn pg_boundary_values_follow_wire_rules() {
@@ -49,12 +78,12 @@ async fn pg_boundary_values_follow_wire_rules() {
         "CREATE TABLE {s}.t (
             id bigserial PRIMARY KEY, i2 smallint, i4 integer, i8 bigint, n numeric(30,4), n2 numeric, f8 float8, f4 real,
             t text, vc varchar(10), b bytea, j jsonb, js json, ts timestamp, tstz timestamptz, d date, tm time, u uuid,
-            ta text[], ia int[], na numeric[], bo boolean, iv interval, ip inet, m money, bits bit(4)
+            ta text[], ia bigint[], na numeric[], bo boolean, iv interval, ip inet, m money, bits bit(4)
         );
         INSERT INTO {s}.t (i2, i4, i8, n, n2, f8, f4, t, vc, b, j, js, ts, tstz, d, tm, u, ta, ia, na, bo, iv, ip, m, bits) VALUES
           (-32768, 2147483647, -9223372036854775808, '10000000000000.0001', 'NaN', 0.1, 0.1, '', 'x', '\\x00ff10', '{{\"a\":[1,2,{{\"b\":null}}]}}', '[1]',
            '2024-03-09 01:02:03.000001', '2024-03-09 01:02:03+02', '9999-12-31', '23:59:59.5', '123e4567-e89b-12d3-a456-426614174000',
-           ARRAY['a', NULL, 'c'], ARRAY[1, 9007199254740993::int], ARRAY[1.5::numeric], true, '1 year 2 mons 3 days 04:05:06', '10.0.0.1/24', 12.34, B'1010'),
+           ARRAY['a', NULL, 'c'], ARRAY[1, 9007199254740993::bigint], ARRAY[1.5::numeric], true, '1 year 2 mons 3 days 04:05:06', '10.0.0.1/24', 12.34, B'1010'),
           (32767, -2147483648, 9223372036854775807, -0.0001, '1e10', 'Infinity', 'NaN', '😀 \\0-free', NULL, '\\x', NULL, NULL,
            'infinity', NULL, NULL, NULL, NULL, '{{}}', NULL, NULL, false, NULL, NULL, NULL, NULL);"
     )))
@@ -170,7 +199,13 @@ async fn pg_introspection() {
     let pk_idx = t.indexes.iter().find(|i| i.primary).expect("pk index");
     assert_eq!(pk_idx.columns, vec!["cid".to_string()]);
     let named = t.indexes.iter().find(|i| i.name == "child_pid_idx").expect("child_pid_idx");
-    assert_eq!(named.columns, vec!["pid".to_string(), "lower((code)::text)".to_string()]);
+    // Postgres 17 prints `lower(code::text)`; 16 and earlier printed
+    // `lower((code)::text)`. The driver passes the server's own rendering
+    // through, so both are correct and the test accepts either.
+    assert_eq!(named.columns.len(), 2);
+    assert_eq!(named.columns[0], "pid");
+    let expr = named.columns[1].replace('(', "").replace(')', "");
+    assert_eq!(expr, "lower code::text".replace(' ', ""), "unexpected expression index rendering: {}", named.columns[1]);
     assert!(t.indexes.iter().any(|i| i.unique && !i.primary && i.columns == vec!["code".to_string()]));
     let ddl = t.ddl.expect("ddl");
     assert!(ddl.starts_with(&format!("CREATE TABLE \"{s}\".\"child\"")), "{ddl}");

@@ -411,27 +411,116 @@ fn pg_text_fallback(value: sqlx::postgres::PgValueRef<'_>, name: &str) -> Cell {
     }
 }
 
-/// Binary `numeric` header: ndigits, weight, sign, dscale (all 16-bit). The
-/// sign field carries NaN / ±Infinity, which `BigDecimal` cannot represent.
+/// Render `numeric` exactly as the server renders it.
+///
+/// The wire format is a header — ndigits, weight, sign, dscale, all 16-bit —
+/// followed by base-10000 digits. The trap is `dscale`: it is the number of
+/// decimal places the value *has*, and it is not implied by the digits.
+/// `1.5` arrives as digits `[1, 5000]` with dscale 1, so anything that
+/// reconstructs from the digits alone reports `1.5000` — which is a different
+/// number as far as `numeric` is concerned, because scale is part of the
+/// value. This formats from the header, the way Postgres does.
+///
+/// The sign field also carries NaN and ±Infinity, which no decimal type can
+/// hold.
 fn pg_numeric(value: sqlx::postgres::PgValueRef<'_>) -> Cell {
     if value.format() == sqlx::postgres::PgValueFormat::Binary {
-        if let Ok(bytes) = value.as_bytes() {
-            if bytes.len() >= 6 {
-                match u16::from_be_bytes([bytes[4], bytes[5]]) {
-                    0xC000 => return Cell::String("NaN".into()),
-                    0xD000 => return Cell::String("Infinity".into()),
-                    0xF000 => return Cell::String("-Infinity".into()),
-                    _ => {}
-                }
+        return match value.as_bytes().ok().and_then(numeric_to_string) {
+            Some(s) => Cell::String(s),
+            None => unsupported("numeric"),
+        };
+    }
+    match value.as_str() {
+        Ok(s) => Cell::String(s.to_string()),
+        Err(_) => unsupported("numeric"),
+    }
+}
+
+/// A `numeric` as the text the server would print.
+///
+/// It exists so arrays get the same treatment as scalars: `arr::<T, _>` needs
+/// something that implements `Decode`, and decoding through a decimal type is
+/// exactly what loses `dscale`.
+pub(crate) struct PgNumericText(pub String);
+
+impl sqlx::Type<sqlx::Postgres> for PgNumericText {
+    fn type_info() -> sqlx::postgres::PgTypeInfo {
+        sqlx::postgres::PgTypeInfo::with_name("NUMERIC")
+    }
+    fn compatible(ty: &sqlx::postgres::PgTypeInfo) -> bool {
+        ty.name().eq_ignore_ascii_case("NUMERIC")
+    }
+}
+
+impl sqlx::postgres::PgHasArrayType for PgNumericText {
+    fn array_type_info() -> sqlx::postgres::PgTypeInfo {
+        sqlx::postgres::PgTypeInfo::with_name("_NUMERIC")
+    }
+}
+
+impl<'r> Decode<'r, sqlx::Postgres> for PgNumericText {
+    fn decode(value: sqlx::postgres::PgValueRef<'r>) -> Result<Self, sqlx::error::BoxDynError> {
+        if value.format() == sqlx::postgres::PgValueFormat::Binary {
+            let bytes = value.as_bytes()?;
+            return numeric_to_string(bytes).map(PgNumericText).ok_or_else(|| "malformed numeric".into());
+        }
+        Ok(PgNumericText(value.as_str()?.to_string()))
+    }
+}
+
+/// `1.5` ← header{ndigits 2, weight 0, sign +, dscale 1} + digits[1, 5000].
+pub(crate) fn numeric_to_string(bytes: &[u8]) -> Option<String> {
+    if bytes.len() < 8 {
+        return None;
+    }
+    let ndigits = i16::from_be_bytes([bytes[0], bytes[1]]);
+    let weight = i16::from_be_bytes([bytes[2], bytes[3]]) as i32;
+    let sign = u16::from_be_bytes([bytes[4], bytes[5]]);
+    let dscale = u16::from_be_bytes([bytes[6], bytes[7]]) as usize;
+    match sign {
+        0xC000 => return Some("NaN".into()),
+        0xD000 => return Some("Infinity".into()),
+        0xF000 => return Some("-Infinity".into()),
+        _ => {}
+    }
+    if ndigits < 0 || bytes.len() < 8 + ndigits as usize * 2 {
+        return None;
+    }
+    let digits: Vec<i16> = (0..ndigits as usize)
+        .map(|i| i16::from_be_bytes([bytes[8 + i * 2], bytes[9 + i * 2]]))
+        .collect();
+
+    let mut out = String::with_capacity(16 + dscale);
+    if sign == 0x4000 {
+        out.push('-');
+    }
+    // Digit group `k` sits at power `weight - k`, most significant first.
+    if weight < 0 {
+        out.push('0');
+    } else {
+        for p in (0..=weight).rev() {
+            let d = digits.get((weight - p) as usize).copied().unwrap_or(0);
+            if p == weight {
+                out.push_str(&d.to_string());
+            } else {
+                out.push_str(&format!("{d:04}"));
             }
         }
-    } else if let Ok(s) = value.as_str() {
-        return Cell::String(s.to_string());
     }
-    match pg_decode::<bigdecimal::BigDecimal>(value) {
-        Some(d) => Cell::String(d.to_plain_string()),
-        None => unsupported("numeric"),
+    if dscale > 0 {
+        out.push('.');
+        let mut frac = String::with_capacity(dscale + 4);
+        let mut p = -1i32;
+        while frac.len() < dscale {
+            let idx = weight - p;
+            let d = if idx < 0 { 0 } else { digits.get(idx as usize).copied().unwrap_or(0) };
+            frac.push_str(&format!("{d:04}"));
+            p -= 1;
+        }
+        frac.truncate(dscale);
+        out.push_str(&frac);
     }
+    Some(out)
 }
 
 fn pg_special_timestamp(value: &sqlx::postgres::PgValueRef<'_>) -> Option<Cell> {
@@ -544,7 +633,7 @@ fn pg_array(value: sqlx::postgres::PgValueRef<'_>, elem: &sqlx::postgres::PgType
             "INT2" | "INT4" | "INT8" => arr::<i64, _>(value, |i| Cell::String(i.to_string())),
             "FLOAT4" => arr::<f32, _>(value, float32_cell),
             "FLOAT8" => arr::<f64, _>(value, float_cell),
-            "NUMERIC" => arr::<bigdecimal::BigDecimal, _>(value, |d| Cell::String(d.to_plain_string())),
+            "NUMERIC" => arr::<PgNumericText, _>(value, |d| Cell::String(d.0)),
             "TEXT" | "VARCHAR" | "CHAR" | "NAME" | "CITEXT" | "XML" => arr::<String, _>(value, Cell::String),
             "BYTEA" => arr::<Vec<u8>, _>(value, |b| bytes_cell(&b)),
             "JSON" | "JSONB" => arr::<sqlx::types::Json<serde_json::Value>, _>(value, |j| j.0),
