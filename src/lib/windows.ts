@@ -112,6 +112,9 @@ export async function setWindowTitle(title: string): Promise<void> {
   }
 }
 
+/** How long a closing window will wait for its own cleanup before going. */
+const CLOSE_BUDGET_MS = 3000;
+
 /**
  * Run `fn` when this window is closing — not when it reloads.
  *
@@ -130,7 +133,19 @@ export function onWindowClose(fn: () => Promise<void> | void): () => void {
       // Hold the close until the workspaces are handed back, then let it go.
       e.preventDefault();
       try {
-        await fn();
+        // But hold it for a bounded time. Handing the workspaces back means
+        // closing their pools, and a pool waits for its connections to come
+        // home — a query still running, or a connection pinned for a
+        // hypothetical-index plan, and that wait does not end. Without a
+        // ceiling the red button simply stops working, which is what
+        // happened. Cleanup is worth a few seconds and not one second more:
+        // the pools die with the process anyway.
+        await Promise.race([
+          (async () => fn())(),
+          new Promise<void>((resolve) => setTimeout(resolve, CLOSE_BUDGET_MS)),
+        ]);
+      } catch {
+        /* a failed handover is not a reason to keep the window open */
       } finally {
         await w.destroy();
       }

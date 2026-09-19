@@ -250,7 +250,10 @@ export const useWorkspaces = create<WorkspacesState>((set, get) => {
     async releaseAll() {
       const ids = Object.keys(get().byId);
       await writeRegistry([]);
-      for (const id of ids) await invoke("workspace_close", { workspaceId: id }).catch(() => {});
+      // Together, not one after another: a closing window gives this whole
+      // step a few seconds, and five pools closing in series can spend it
+      // before the second one is done.
+      await Promise.all(ids.map((id) => invoke("workspace_close", { workspaceId: id }).catch(() => {})));
     },
 
     async launch(connectionId, database) {
