@@ -47,7 +47,7 @@ async fn mysql_boundary_values_follow_wire_rules() {
          );
          INSERT INTO plinth_t_types VALUES
            (-9223372036854775808, 18446744073709551615, -128, 1, '10000000000000.0001', 0.1, 0.1, '', 'x', X'00FF10', '{\"a\":[1,2,{\"b\":null}]}',
-            '2024-03-09 01:02:03.000001', '2024-03-09 01:02:03', '9999-12-31', '-838:59:59.5', 2024, b'1010', 'b'),
+            '2024-03-09 01:02:03.000001', '2024-03-09 01:02:03', '9999-12-31', '-838:59:58.999', 2024, b'1010', 'b'),
            (9223372036854775807, 0, 127, 0, '-0.0001', -1.5, NULL, 'grin 😀', NULL, X'', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);",
     )
     .await;
@@ -90,7 +90,11 @@ async fn mysql_boundary_values_follow_wire_rules() {
     assert_eq!(r1[col(&m, "dt").0], json!("2024-03-09T01:02:03.000001"));
     assert_eq!(r1[col(&m, "ts").0], json!("2024-03-09T01:02:03+00:00"));
     assert_eq!(r1[col(&m, "d").0], json!("9999-12-31"));
-    assert_eq!(r1[col(&m, "tm").0], json!("-838:59:59.500"));
+    // MySQL's TIME runs -838:59:59 to 838:59:59, and that bound is whole
+    // seconds even on a TIME(3): '-838:59:59.5' is rejected outright. This is
+    // the largest magnitude that still carries a fraction, which is the pair
+    // of things worth testing at once.
+    assert_eq!(r1[col(&m, "tm").0], json!("-838:59:58.999"));
     assert_eq!(r1[col(&m, "y").0], json!("2024"));
     assert_eq!(r1[col(&m, "bits").0], json!("10"));
     assert_eq!(r1[col(&m, "e").0], json!("b"));
@@ -119,7 +123,11 @@ async fn mysql_introspection() {
 
     let idx = d.schema_index().await.expect("schema_index");
     let db = d.current_database();
-    assert!(idx.schemas.iter().any(|s| s.name == "information_schema" && s.is_system));
+    assert!(
+        idx.schemas.iter().any(|s| s.name == "information_schema" && s.is_system),
+        "information_schema missing or not flagged system; SHOW DATABASES gave: {:?}",
+        idx.schemas.iter().map(|s| (&s.name, s.is_system)).collect::<Vec<_>>()
+    );
     let cur = idx.schemas.iter().find(|s| s.name == db).expect("current db listed");
     assert!(!cur.is_system);
     let find = |n: &str| cur.objects.iter().find(|o| o.name == n).unwrap_or_else(|| panic!("{n}"));
