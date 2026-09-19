@@ -1,0 +1,323 @@
+/* ============================================================
+   The guide — a full-window tour, in the app's own materials.
+
+   EVERY selector in this file is scoped under `.guide`. It is not
+   tidiness: the first version styled a bare `.row`, and the data grid's
+   rows are `.row` too, so 64px of landing-page padding went into every
+   row of every table. A page-specific stylesheet with generic class
+   names is a loaded gun — keep the scope.
+
+   Rules it keeps to: one accent, no gradient wash, no emoji, no
+   drop-shadow on text. Motion is a single idea (things arrive from
+   just below, once) applied consistently. Every colour is a token.
+   ============================================================ */
+
+.guide {
+  position: fixed; inset: 0; z-index: 50; display: flex; flex-direction: column;
+  background: var(--window); color: var(--label);
+  animation: guide-in 260ms var(--ease);
+}
+@keyframes guide-in { from { opacity: 0; transform: scale(0.985); } }
+
+/* ---- the bar that stays ---- */
+.guide .gtop {
+  height: var(--h-titlebar); flex-shrink: 0; display: flex; align-items: center; gap: var(--sp-6);
+  padding: 0 var(--sp-6) 0 var(--sp-7); border-bottom: var(--hairline) solid var(--separator);
+  background: color-mix(in srgb, var(--window) 88%, transparent);
+  backdrop-filter: blur(20px) saturate(180%); -webkit-backdrop-filter: blur(20px) saturate(180%);
+}
+.guide .gtop.mac { padding-left: 84px; }
+.guide .gtop .mark { display: inline-flex; align-items: center; gap: var(--sp-4); font: 600 14px/1 var(--font-ui); letter-spacing: -0.01em; white-space: nowrap; }
+.guide .gtop .mark .glyph {
+  width: 15px; height: 15px; border-radius: 4px; background: var(--accent);
+  box-shadow: inset 0 0 0 3px color-mix(in srgb, var(--accent-text) 85%, transparent), inset 0 0 0 4.5px var(--accent);
+}
+.guide .gtop .icon-btn { margin-left: auto; }
+
+.guide .gsearch {
+  flex: 1; max-width: 620px; height: 30px; display: flex; align-items: center; gap: var(--sp-4);
+  padding: 0 var(--sp-5); border-radius: var(--r-pill); background: var(--content);
+  box-shadow: inset 0 0 0 var(--hairline) var(--label-3);
+}
+.guide .gsearch:focus-within { box-shadow: inset 0 0 0 var(--hairline) var(--accent), 0 0 0 3.5px color-mix(in srgb, var(--accent) 30%, transparent); }
+.guide .gsearch svg { width: 14px; height: 14px; color: var(--label-3); flex-shrink: 0; }
+.guide .gsearch input { flex: 1; min-width: 0; border: 0; background: none; outline: none; color: var(--label); font: 400 13px/1 var(--font-ui); }
+.guide .gsearch input:focus-visible { box-shadow: none; }
+.guide .gsearch .clear { color: var(--label-3); display: inline-flex; }
+.guide .gsearch .clear:hover { color: var(--label); }
+.guide .gsearch .kbd { color: var(--label-3); font: var(--t-caption); white-space: nowrap; }
+
+/* ---- the scrolling body ---- */
+.guide .gbody { flex: 1; overflow: auto; scroll-behavior: smooth; overscroll-behavior: contain; }
+.guide .gbody > * { max-width: 1080px; margin: 0 auto; padding: 0 var(--sp-8); }
+
+/* ---- type ---- */
+.guide h1 { font: 700 42px/1.06 var(--font-ui); letter-spacing: -0.025em; margin: 0; max-width: 16ch; }
+.guide h1 em { font-style: normal; background: linear-gradient(transparent 62%, color-mix(in srgb, var(--accent) 30%, transparent) 62%); }
+.guide h2 { font: 600 25px/1.2 var(--font-ui); letter-spacing: -0.018em; margin: 0; }
+.guide h3 { font: 600 15px/1.3 var(--font-ui); margin: 0; }
+.guide p { margin: 0; font: 400 14px/1.6 var(--font-ui); color: var(--label-2); }
+.guide .lede { font-size: 15px; line-height: 1.62; max-width: 62ch; }
+.guide .kicker {
+  display: inline-flex; align-items: center; gap: var(--sp-3); font: 600 10.5px/1 var(--font-ui);
+  letter-spacing: 0.09em; text-transform: uppercase; color: var(--accent);
+}
+.guide .kicker svg { width: 12px; height: 12px; }
+.guide code {
+  font: 400 12px/1.4 var(--font-mono); background: var(--label-4); color: var(--label);
+  padding: 1px 5px; border-radius: 4px; white-space: nowrap;
+}
+.guide .kbd {
+  font: 500 11px/1 var(--font-mono); color: var(--label-2); background: var(--label-4);
+  padding: 4px 6px; border-radius: 5px; white-space: nowrap;
+}
+
+/* ---- hero ---- */
+.guide .hero { position: relative; padding-top: 86px; padding-bottom: 96px; display: flex; flex-direction: column; align-items: flex-start; gap: var(--sp-6); }
+.guide .hero .halo {
+  position: absolute; left: -80px; top: -120px; width: 620px; height: 420px; pointer-events: none;
+  background: radial-gradient(45% 45% at 40% 50%, color-mix(in srgb, var(--accent) 13%, transparent), transparent 72%);
+  filter: blur(6px); animation: drift 14s var(--ease) infinite alternate;
+}
+@keyframes drift { to { transform: translate3d(40px, 18px, 0) scale(1.06); } }
+.guide .hero h1 { margin-top: var(--sp-2); }
+.guide .hero .tries { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-4); margin-top: var(--sp-4); }
+.guide .hero .lbl, .guide .howto .lbl { font: var(--t-caption); letter-spacing: 0.06em; text-transform: uppercase; color: var(--label-3); }
+.guide .try {
+  height: 28px; padding: 0 var(--sp-5); border-radius: var(--r-pill); font: 400 12.5px/1 var(--font-ui); color: var(--label);
+  background: var(--content); box-shadow: inset 0 0 0 var(--hairline) var(--label-4), var(--shadow-button);
+  transition: transform 160ms var(--ease), box-shadow 160ms var(--ease);
+}
+.guide .try:hover { transform: translateY(-1px); box-shadow: inset 0 0 0 var(--hairline) var(--accent), 0 2px 8px rgba(0, 0, 0, 0.12); }
+.guide .scroll-hint { position: absolute; left: var(--sp-8); bottom: 34px; color: var(--label-3); animation: nudge 2.4s var(--ease) infinite; }
+@keyframes nudge { 0%, 70%, 100% { transform: none; opacity: 0.5; } 85% { transform: translateY(4px); opacity: 1; } }
+
+/* ---- a tour row ---- */
+.guide .row {
+  display: grid; grid-template-columns: minmax(0, 0.92fr) minmax(0, 1.08fr); gap: 64px; align-items: center;
+  padding-top: 64px; padding-bottom: 64px; border-top: var(--hairline) solid var(--separator);
+}
+.guide .row.flip .say { order: 2; }
+.guide .row .say { display: flex; flex-direction: column; gap: var(--sp-5); }
+.guide .row .say h2 { margin-top: var(--sp-1); }
+.guide .points { list-style: none; margin: var(--sp-2) 0 0; padding: 0; display: flex; flex-direction: column; gap: var(--sp-4); }
+.guide .points li { display: grid; grid-template-columns: 16px 1fr; gap: var(--sp-4); font: 400 13.5px/1.55 var(--font-ui); color: var(--label); }
+.guide .points svg { width: 13px; height: 13px; margin-top: 4px; color: var(--green); stroke-width: 2.4px; }
+
+.guide .howto { margin-top: var(--sp-5); display: flex; flex-direction: column; gap: var(--sp-2); align-items: flex-start; }
+.guide .howto .lbl { margin-bottom: var(--sp-2); }
+.guide .jump {
+  width: 100%; display: flex; align-items: center; gap: var(--sp-4); height: 30px; padding: 0 var(--sp-5);
+  border-radius: var(--r-control); font: 400 13px/1 var(--font-ui); color: var(--label); text-align: left;
+  box-shadow: inset 0 0 0 var(--hairline) var(--separator);
+}
+.guide .jump:hover { background: var(--content); box-shadow: inset 0 0 0 var(--hairline) var(--accent); }
+.guide .jump span:first-child { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.guide .tinyarrow { color: var(--label-3); font-size: 13px; }
+.guide .jump:hover .tinyarrow { color: var(--accent); transform: translateX(2px); }
+
+.guide .show { margin: 0; }
+.guide .show .shot {
+  width: 100%; height: auto; display: block; border-radius: 10px;
+  filter: drop-shadow(0 12px 32px rgba(0, 0, 0, 0.16));
+  transition: transform 300ms var(--ease);
+}
+.guide .row:hover .show .shot { transform: translateY(-3px); }
+
+/* ---- reveal-once motion ---- */
+.guide [data-reveal] { opacity: 0; transform: translateY(16px); }
+.guide [data-reveal].in { opacity: 1; transform: none; transition: opacity 520ms var(--ease), transform 520ms var(--ease); }
+.guide [data-reveal].in .say > * { animation: rise 460ms var(--ease) backwards; }
+.guide [data-reveal].in .say > *:nth-child(2) { animation-delay: 60ms; }
+.guide [data-reveal].in .say > *:nth-child(3) { animation-delay: 110ms; }
+.guide [data-reveal].in .say > *:nth-child(4) { animation-delay: 160ms; }
+.guide [data-reveal].in .say > *:nth-child(5) { animation-delay: 210ms; }
+@keyframes rise { from { opacity: 0; transform: translateY(8px); } }
+
+/* ---- search results ---- */
+.guide .results { padding-top: 40px; padding-bottom: 80px; display: flex; flex-direction: column; gap: var(--sp-5); }
+.guide .answer {
+  background: var(--content); border-radius: var(--r-popover); padding: var(--sp-6) var(--sp-7);
+  box-shadow: inset 0 0 0 var(--hairline) var(--separator); position: relative;
+  animation: rise 300ms var(--ease) backwards;
+}
+.guide .answer.on { box-shadow: inset 0 0 0 var(--hairline) var(--separator), inset 3px 0 0 var(--accent), 0 4px 18px rgba(0, 0, 0, 0.10); }
+.guide .answer header { display: flex; align-items: center; gap: var(--sp-5); margin-bottom: var(--sp-5); }
+.guide .answer header h3 { flex: 1; }
+.guide .answer .btn.default { height: 26px; gap: var(--sp-3); }
+.guide .answer .btn.default svg { width: 12px; height: 12px; }
+.guide .answer ol { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--sp-4); }
+.guide .answer li { display: grid; grid-template-columns: 20px 1fr; gap: var(--sp-4); font: 400 13.5px/1.55 var(--font-ui); color: var(--label-2); }
+.guide .answer li span:last-child { color: var(--label); }
+.guide .answer .n {
+  width: 18px; height: 18px; border-radius: 50%; background: var(--label-4); color: var(--label-2);
+  font: 600 10px/18px var(--font-ui); text-align: center; margin-top: 2px;
+}
+.guide .noresult { padding: 80px var(--sp-8); display: flex; flex-direction: column; gap: var(--sp-5); }
+.guide .noresult p:first-child { font: 600 18px/1.3 var(--font-ui); color: var(--label); }
+
+/* ---- the comparison ---- */
+.guide .versus { padding-top: 72px; padding-bottom: 24px; border-top: var(--hairline) solid var(--separator); display: flex; flex-direction: column; gap: var(--sp-5); }
+.guide .versus .table { margin-top: var(--sp-5); border-radius: var(--r-popover); overflow: hidden; box-shadow: inset 0 0 0 var(--hairline) var(--separator); }
+.guide .hrow, .guide .crow { display: grid; grid-template-columns: minmax(0, 1.5fr) repeat(4, minmax(0, 1fr)); align-items: stretch; }
+.guide .hrow { font: 600 12px/1 var(--font-ui); color: var(--label-2); background: var(--window); }
+.guide .hrow > span { padding: var(--sp-5) var(--sp-5); border-bottom: var(--hairline) solid var(--separator); }
+.guide .hrow .us, .guide .cell.us { background: color-mix(in srgb, var(--accent) 7%, transparent); }
+.guide .hrow .us { color: var(--accent); }
+.guide .crow { background: var(--content); }
+.guide .crow:nth-child(even) { background: var(--alt-row); }
+.guide .crow > span { padding: var(--sp-5); border-bottom: var(--hairline) solid var(--separator); font: 400 13px/1.4 var(--font-ui); }
+.guide .crow:last-child > span { border-bottom: 0; }
+.guide .crow [role="rowheader"] { color: var(--label); font-weight: 500; }
+.guide .cell { display: flex; flex-direction: column; gap: 3px; }
+.guide .cell b { font: 400 13px/1 var(--font-ui); }
+.guide .cell .vt { font: var(--t-caption); line-height: 1.4; color: var(--label-2); }
+.guide .cell.yes b { color: var(--green); }
+.guide .cell.part b, .guide .cell.paid b { color: var(--orange); }
+.guide .cell.no b { color: var(--label-3); }
+.guide .versus .key { font: var(--t-caption); color: var(--label-3); display: flex; gap: var(--sp-4); align-items: center; }
+.guide .versus .key b { font-weight: 400; color: var(--label-2); }
+
+/* ---- the honest list ---- */
+.guide .honest { padding-top: 64px; padding-bottom: 24px; display: flex; flex-direction: column; gap: var(--sp-5); }
+.guide .honest ul { list-style: none; margin: var(--sp-2) 0 0; padding: 0; display: flex; flex-direction: column; gap: var(--sp-4); max-width: 72ch; }
+.guide .honest li { display: grid; grid-template-columns: 16px 1fr; gap: var(--sp-4); font: 400 13.5px/1.55 var(--font-ui); color: var(--label-2); }
+.guide .honest svg { width: 13px; height: 13px; margin-top: 4px; color: var(--label-3); }
+
+.guide .gfoot {
+  display: flex; align-items: center; gap: var(--sp-5); padding-top: var(--sp-7); padding-bottom: 56px; margin-top: var(--sp-7);
+  border-top: var(--hairline) solid var(--separator); font: var(--t-callout); color: var(--label-3);
+}
+.guide .gfoot .sp { flex: 1; }
+.guide .gfoot .kbd { font-size: 10px; }
+
+/* ============================================================
+   The drawings. Every fill is a token, so they follow the theme.
+   ============================================================ */
+.guide .shot { font-family: var(--font-ui); }
+.guide .shot text { font-size: 11px; fill: var(--label); }
+.guide .shot .pane { fill: var(--content); stroke: var(--separator); stroke-width: 1; }
+.guide .shot .bar { fill: var(--window); }
+.guide .shot .hair { stroke: var(--separator); stroke-width: 1; fill: none; }
+.guide .shot .m { font-family: var(--font-mono); font-size: 11.5px; }
+.guide .shot .t0 { fill: var(--label); font-weight: 500; }
+.guide .shot .t1 { fill: var(--label); }
+.guide .shot .t2 { fill: var(--label-2); }
+.guide .shot .t3 { fill: var(--label-3); font-size: 10px; }
+.guide .shot .num { font-variant-numeric: tabular-nums; }
+
+.guide .shot .pill rect { fill: var(--label-4); }
+.guide .shot .pill text { fill: var(--label-2); font-size: 9.5px; }
+.guide .shot .pill.ok rect { fill: color-mix(in srgb, var(--green) 18%, transparent); }
+.guide .shot .pill.ok text { fill: var(--green); }
+.guide .shot .pill.warn rect { fill: color-mix(in srgb, var(--orange) 20%, transparent); }
+.guide .shot .pill.warn text { fill: var(--orange); }
+
+/* shot-internal staggered arrival, only once the section is in view */
+.guide .shot .reveal { opacity: 0; }
+.guide [data-reveal].in .shot .reveal { animation: shot-in 520ms var(--ease) forwards; animation-delay: calc(var(--i) * 130ms + 180ms); }
+@keyframes shot-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+/* 1 · the AI */
+.guide .shot .bubble rect { fill: var(--accent); }
+.guide .shot .bubble text { fill: var(--accent-text); font-size: 11px; }
+.guide .shot .idx { fill: var(--label-4); }
+.guide .shot .idxn { fill: var(--label-2); font-size: 9px; font-weight: 600; }
+.guide .shot .tick { stroke: var(--green); stroke-width: 2; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+
+/* 2 · the rails */
+.guide .shot .squiggle { stroke: var(--red); stroke-width: 1.4; fill: none; opacity: 0.85; }
+.guide .shot .card rect { fill: var(--window); }
+.guide .shot .card > rect:first-child { stroke: var(--separator); }
+.guide .shot .warnring { stroke: var(--orange); stroke-width: 1.5; fill: none; }
+.guide .shot .bang { stroke: var(--orange); stroke-width: 1.8; stroke-linecap: round; }
+.guide .shot .input { fill: var(--content); stroke: var(--label-3); }
+.guide .shot .caret { fill: var(--accent); animation: blink 1.1s steps(2, start) infinite; }
+@keyframes blink { 50% { opacity: 0; } }
+.guide .shot .typeclip { transform-box: fill-box; transform-origin: left; animation: type 2.6s var(--ease) infinite; }
+@keyframes type { 0%, 8% { transform: scaleX(0); } 55%, 100% { transform: scaleX(1); } }
+.guide .shot .btn rect { fill: var(--control); stroke: var(--label-4); }
+.guide .shot .btn text { font-size: 10.5px; fill: var(--label); }
+.guide .shot .btn.danger rect { fill: var(--red); stroke: none; }
+.guide .shot .btn.danger text { fill: #fff; }
+
+/* 3 · the map */
+.guide .shot .node rect { fill: var(--content); stroke: var(--separator); }
+.guide .shot .node.on rect { stroke: var(--accent); }
+.guide .shot .edge { stroke: var(--label-3); stroke-width: 1.4; fill: none; }
+.guide .shot .edge.thick { stroke-width: 3; stroke: var(--label-2); }
+.guide .shot .edge.dashed { stroke-dasharray: 4 4; }
+.guide .shot .edge.flow { stroke: var(--accent); stroke-width: 2; stroke-dasharray: 6 8; animation: flow 1.6s linear infinite; }
+@keyframes flow { to { stroke-dashoffset: -28; } }
+
+/* 4 · the plan */
+.guide .shot .plannode rect:first-child { fill: var(--content); stroke: var(--separator); }
+.guide .shot .meterbg { fill: var(--label-4); stroke: none; }
+.guide .shot .meter { stroke: none; transform-box: fill-box; transform-origin: left; }
+.guide [data-reveal].in .shot .meter { animation: fill 720ms var(--ease) backwards; animation-delay: 520ms; }
+@keyframes fill { from { transform: scaleX(0); } }
+.guide .shot .flagtri { fill: var(--orange); }
+.guide .shot .hazard rect { fill: color-mix(in srgb, var(--orange) 10%, var(--content)); stroke: color-mix(in srgb, var(--orange) 35%, transparent); }
+
+/* 5 · the diff */
+.guide .shot .drow rect { fill: transparent; }
+.guide .shot .drow .sign { font-family: var(--font-mono); font-weight: 600; }
+.guide .shot .drow.add rect, .guide .shot .drow.idx rect { fill: color-mix(in srgb, var(--green) 11%, transparent); }
+.guide .shot .drow.add .sign, .guide .shot .drow.idx .sign { fill: var(--green); }
+.guide .shot .drow.del rect { fill: color-mix(in srgb, var(--red) 11%, transparent); }
+.guide .shot .drow.del .sign { fill: var(--red); }
+.guide .shot .drow.chg rect { fill: color-mix(in srgb, var(--orange) 11%, transparent); }
+.guide .shot .drow.chg .sign { fill: var(--orange); }
+.guide .shot .code rect { fill: var(--window); stroke: var(--separator); }
+
+/* the syntax palette, same variables the editor uses */
+.guide .shot .tok-kw { fill: var(--syn-keyword); font-weight: 600; }
+.guide .shot .tok-type, .guide .shot .tok-table { fill: var(--syn-type); }
+.guide .shot .tok-num { fill: var(--syn-number); }
+.guide .shot .tok-cmt { fill: var(--syn-comment); font-style: italic; }
+.guide .shot .tok-fn { fill: var(--syn-function); }
+.guide .shot .tok-name, .guide .shot .tok-column { fill: var(--syn-name); }
+.guide .shot .tok-op { fill: var(--syn-operator); }
+.guide .shot .tok-punct { fill: var(--syn-punct); }
+.guide .shot .rb1 { fill: var(--series-4); font-weight: 600; }
+
+/* 6 · the chart */
+.guide .shot .bar rect { fill: var(--series-1); transform-box: fill-box; transform-origin: bottom; }
+.guide [data-reveal].in .shot .bar rect { animation: grow 620ms var(--ease) backwards; animation-delay: calc(var(--i) * 70ms + 150ms); }
+@keyframes grow { from { transform: scaleY(0); } }
+.guide .shot .alpha rect { fill: var(--label-4); }
+.guide .shot .alpha pattern rect { fill: var(--label-3); }
+.guide .shot .alpha text { fill: var(--label-2); }
+
+/* 7 · embeddings */
+.guide .shot .spark { stroke: var(--series-1); stroke-width: 1.6; fill: none; stroke-linejoin: round; stroke-dasharray: 260; }
+.guide .shot .spark.s2 { stroke: var(--series-2); }
+.guide [data-reveal].in .shot .spark { animation: draw 1.1s var(--ease) backwards; animation-delay: 300ms; }
+@keyframes draw { from { stroke-dashoffset: 260; } to { stroke-dashoffset: 0; } }
+.guide .shot .tinychip rect { fill: var(--label-4); }
+.guide .shot .tinychip text { fill: var(--label-2); font-size: 9px; font-family: var(--font-mono); }
+
+/* 8 · the editor */
+.guide .shot .pop > rect { fill: var(--popover); stroke: var(--separator); }
+.guide .shot .prow rect { fill: transparent; }
+.guide .shot .prow.on rect { fill: var(--accent); }
+.guide .shot .prow.on text { fill: var(--accent-text); }
+.guide .shot .prow .ic { fill: var(--accent); font-size: 11px; }
+.guide .shot .prow.on .ic { fill: var(--accent-text); }
+.guide .shot .prow .m { font-size: 10px; }
+.guide .shot .prow .d { fill: var(--label-3); font-size: 9.5px; }
+.guide .shot .prow.on .d { fill: color-mix(in srgb, var(--accent-text) 78%, transparent); }
+
+/* ---- narrow windows ---- */
+@media (max-width: 940px) {
+  .guide .row { grid-template-columns: 1fr; gap: var(--sp-8); }
+  .guide .row.flip .say { order: 0; }
+  .guide h1 { font-size: 34px; }
+  .guide .hrow, .guide .crow { grid-template-columns: minmax(0, 1.2fr) repeat(4, minmax(0, 1fr)); }
+  .guide .cell .vt { display: none; }
+}
+
+/* ---- reduced motion: arrive already arrived ---- */
+@media (prefers-reduced-motion: reduce) {
+  .guide [data-reveal], .guide .shot .reveal, .guide .shot .meter, .guide .shot .bar rect, .guide .shot .spark { opacity: 1 !important; transform: none !important; stroke-dasharray: none !important; }
+}

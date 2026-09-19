@@ -1,0 +1,160 @@
+/* ============================================================
+   The JSON viewer. Every selector is scoped under `.jsonview` —
+   the guide's bare `.row` taught that lesson once already.
+   ============================================================ */
+
+.jsonview { display: flex; flex-direction: column; height: 100%; min-height: 0; background: var(--content); }
+
+.jsonview .jbar,
+.jsonview .jsearch {
+  display: flex; align-items: center; gap: var(--sp-3); padding: var(--sp-3) var(--sp-4);
+  border-bottom: var(--hairline) solid var(--separator); flex-shrink: 0;
+}
+.jsonview .jtitle { font: var(--t-headline); color: var(--label); }
+.jsonview .jstat { display: inline-flex; align-items: center; gap: var(--sp-3); font: var(--t-caption); color: var(--label-3); }
+.jsonview .jstat svg { width: 12px; height: 12px; }
+.jsonview .icon-btn.on { background: var(--label-4); color: var(--accent); }
+
+/* ---- search ---- */
+.jsonview .jsearch { gap: var(--sp-2); }
+.jsonview .jsearch .glyph { color: var(--label-3); display: inline-flex; }
+.jsonview .jsearch .glyph svg { width: 12px; height: 12px; }
+.jsonview .jsearch input {
+  flex: 1; min-width: 60px; border: 0; background: transparent; outline: none;
+  color: var(--label); font: var(--t-body); padding: 0 var(--sp-2);
+}
+.jsonview .jsearch input:focus-visible { box-shadow: none; }
+.jsonview .scopes { display: inline-flex; background: var(--label-4); border-radius: var(--r-control); padding: 1px; }
+.jsonview .scopes button {
+  font: var(--t-caption); color: var(--label-2); padding: 2px var(--sp-3); border-radius: 5px; text-transform: lowercase;
+}
+.jsonview .scopes button.on { background: var(--content); color: var(--label); font-weight: 600; box-shadow: var(--shadow-button); }
+.jsonview .jcount { display: inline-flex; align-items: center; gap: 2px; font: var(--t-caption); color: var(--label-3); white-space: nowrap; }
+
+/* ---- rows ---- */
+.jsonview .jrows { flex: 1; overflow: auto; min-height: 0; contain: strict; }
+.jsonview .jrow {
+  position: absolute; top: 0; left: 0; right: 0; height: 22px;
+  display: flex; align-items: center; gap: var(--sp-2);
+  font: var(--t-mono); white-space: nowrap; padding-right: var(--sp-5);
+}
+.jsonview .jrow:hover { background: var(--alt-row); }
+.jsonview .jrow.hit { background: color-mix(in srgb, var(--yellow) 14%, transparent); }
+.jsonview .jrow.cur { background: color-mix(in srgb, var(--yellow) 26%, transparent); }
+.jsonview .jrow.sel { background: var(--accent); color: var(--accent-text); }
+.jsonview .jrow.sel .jkey, .jsonview .jrow.sel .jidx, .jsonview .jrow.sel .jval,
+.jsonview .jrow.sel .jsum, .jsonview .jrow.sel .jbrace, .jsonview .jrow.sel .jcolon { color: inherit; }
+.jsonview .jrow mark { background: color-mix(in srgb, var(--yellow) 60%, transparent); color: var(--label); border-radius: 2px; }
+
+.jsonview .tw { width: 14px; height: 14px; flex-shrink: 0; display: inline-flex; align-items: center; justify-content: center; color: var(--label-3); }
+.jsonview .tw svg { width: 11px; height: 11px; }
+.jsonview .tw:hover { color: var(--label); }
+
+.jsonview .jkey { color: var(--syn-name); font-weight: 500; }
+.jsonview .jidx { color: var(--label-3); }
+.jsonview .jcolon { color: var(--label-3); margin-left: 1px; }
+.jsonview .jsum { color: var(--label-3); }
+.jsonview .jbrace { color: var(--syn-punct); }
+.jsonview .jval { overflow: hidden; text-overflow: ellipsis; }
+.jsonview .jval.string { color: var(--syn-string); }
+.jsonview .jval.number { color: var(--syn-number); }
+.jsonview .jval.boolean { color: var(--syn-keyword); }
+.jsonview .jval.null { color: var(--label-3); font-style: italic; }
+
+/* ---- the selected node's path ---- */
+.jsonview .jfoot {
+  display: flex; align-items: center; gap: var(--sp-3); padding: var(--sp-3) var(--sp-4);
+  border-top: var(--hairline) solid var(--separator); flex-shrink: 0; background: var(--window);
+}
+.jsonview .jpath { font: var(--t-mono); color: var(--label-2); min-width: 0; }
+.jsonview .jfoot .btn.mini svg { width: 10px; height: 10px; }
+
+/* ---- a document that will not parse ---- */
+.jsonview .jerror { padding: var(--sp-7); display: flex; flex-direction: column; gap: var(--sp-3); }
+.jsonview .jerror b { color: var(--red); font: var(--t-headline); }
+.jsonview .jerror span { font: var(--t-callout); color: var(--label-2); }
+.jsonview .jerror code { font: var(--t-mono); background: var(--window); padding: var(--sp-4); border-radius: var(--r-control); overflow: auto; }
+
+/* ---- the inspector's narrow column ---- */
+.jsonview.dense .jbar, .jsonview.dense .jsearch { padding: var(--sp-2) var(--sp-3); }
+.jsonview.dense .scopes button { padding: 1px var(--sp-2); }
+.jsonview.dense .jrow { font-size: 11px; }
+
+/* ---- the document beside the grid, in the inspector ---- */
+.jside { border-radius: var(--r-control); overflow: hidden; box-shadow: inset 0 0 0 var(--hairline) var(--separator); }
+.jside .jsonview { background: var(--content); }
+
+/* ---- the full tab ---- */
+.jsontab { display: flex; flex-direction: column; height: 100%; min-height: 0; background: var(--content); }
+.jsontab .jsonview { flex: 1; min-height: 0; }
+.jsontab > .jbar {
+  display: flex; align-items: center; gap: var(--sp-3); padding: var(--sp-3) var(--sp-5);
+  border-bottom: var(--hairline) solid var(--separator); flex-shrink: 0;
+}
+.jsontab > .jbar .jtitle { font: var(--t-headline); }
+.jsontab > .jbar .jstat { font: var(--t-caption); color: var(--label-3); }
+.jsontab > .jbar .jstat.bad { color: var(--red); }
+.jsontab > .jbar .btn.mini svg { width: 11px; height: 11px; }
+.jsontab .jtext {
+  flex: 1; min-height: 0; border: 0; outline: none; resize: none;
+  background: var(--content); color: var(--label); font: var(--t-mono); padding: var(--sp-5);
+  tab-size: 2;
+}
+
+/* ---- the connection-free viewer ---- */
+.jscratch {
+  position: fixed; inset: 6vh 8vw; z-index: 60; display: flex; flex-direction: column;
+  background: var(--content); border-radius: var(--r-sheet); box-shadow: var(--shadow-float);
+  overflow: hidden; animation: pop var(--dur-select) var(--ease);
+}
+.jscratch > .jbar {
+  display: flex; align-items: center; gap: var(--sp-4); padding: var(--sp-4) var(--sp-5);
+  border-bottom: var(--hairline) solid var(--separator); flex-shrink: 0; background: var(--window);
+}
+.jscratch .jtitle { display: inline-flex; align-items: center; gap: var(--sp-3); font: var(--t-title-3); }
+.jscratch .jtitle svg { width: 15px; height: 15px; color: var(--accent); }
+.jscratch .jstat { font: var(--t-caption); color: var(--label-3); }
+.jscratch .jstat.bad { color: var(--red); }
+.jscratch .btn.mini svg { width: 11px; height: 11px; }
+.jscratch .jtext {
+  flex: 1; min-height: 0; border: 0; outline: none; resize: none;
+  background: var(--content); color: var(--label); font: var(--t-mono); padding: var(--sp-6); tab-size: 2;
+}
+.jscratch .jsonview { flex: 1; min-height: 0; }
+
+/* ---- "not valid, but here it is anyway" ---- */
+.jsonview .jissues { border-bottom: var(--hairline) solid var(--separator); background: color-mix(in srgb, var(--yellow) 10%, transparent); flex-shrink: 0; }
+.jsonview .jissues.bad { background: color-mix(in srgb, var(--red) 10%, transparent); }
+.jsonview .jissues .head { display: flex; align-items: center; gap: var(--sp-3); width: 100%; padding: var(--sp-3) var(--sp-4); text-align: left; }
+.jsonview .jissues .head svg { width: 13px; height: 13px; color: var(--orange); flex-shrink: 0; }
+.jsonview .jissues.bad .head svg { color: var(--red); }
+.jsonview .jissues b { font: var(--t-callout); font-weight: 600; white-space: nowrap; }
+.jsonview .jissues .jsub { font: var(--t-caption); color: var(--label-2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.jsonview .jissues .kbd { font: var(--t-caption); }
+.jsonview .jissues .list { max-height: 160px; overflow: auto; border-top: var(--hairline) solid var(--separator); }
+.jsonview .jissue { display: flex; align-items: baseline; gap: var(--sp-4); width: 100%; padding: 3px var(--sp-5); text-align: left; font: var(--t-caption); }
+.jsonview .jissue:hover, .jsonview .jissue.on { background: color-mix(in srgb, var(--label) 8%, transparent); }
+.jsonview .jissue .where { font-family: var(--font-mono); color: var(--label-3); white-space: nowrap; min-width: 72px; }
+.jsonview .jissue .what { color: var(--label); flex: 1; }
+.jsonview .jissue.error .what { color: var(--red); }
+.jsonview .jissue .path { font-family: var(--font-mono); color: var(--label-3); max-width: 40%; }
+.jsonview .jissues .more { padding: var(--sp-3) var(--sp-5); font: var(--t-caption); color: var(--label-3); }
+
+/* a row the parser had to guess at */
+.jsonview .jrow.bad { box-shadow: inset 2px 0 0 var(--orange); }
+.jsonview .jrow.bad.error { box-shadow: inset 2px 0 0 var(--red); }
+.jsonview .jflag { display: inline-flex; margin-left: var(--sp-3); }
+.jsonview .jflag svg { width: 11px; height: 11px; color: var(--orange); }
+.jsonview .jflag.error svg { color: var(--red); }
+
+/* ---- one document, enlarged over the app ---- */
+.jzoom {
+  position: fixed; inset: 8vh 10vw; z-index: 41; display: flex; flex-direction: column;
+  background: var(--content); border-radius: var(--r-sheet); box-shadow: var(--shadow-float);
+  overflow: hidden; animation: pop var(--dur-select) var(--ease);
+}
+.jzoom .jsonview { flex: 1; min-height: 0; }
+
+/* the side panel is as tall as its document, up to the cap in JsonSide */
+.jside { height: auto; max-height: 60vh; display: flex; }
+.jside .jsonview { flex: 1; min-height: 0; }

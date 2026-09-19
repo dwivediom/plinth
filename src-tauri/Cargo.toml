@@ -1,0 +1,30 @@
+[package]
+name = "plinth-app"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Plinth — a native database client with a built-in MCP server"
+
+[lib]
+name = "plinth_app_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+plinth-core.workspace = true
+plinth-drivers.workspace = true
+tauri = { version = "2", features = ["macos-private-api", "devtools"] }
+tauri-plugin-dialog = "2"
+tauri-plugin-opener = "2"
+window-vibrancy = "0.6"
+tokio.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+anyhow.workspace = true
+thiserror.workspace = true
+keyring = { workspace = true, features = ["v1"] }
+tracing.workspace = true
+tracing-subscriber.workspace = true
+parking_lot.workspace = true

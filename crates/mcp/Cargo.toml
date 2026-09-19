@@ -1,0 +1,27 @@
+[package]
+name = "plinth-mcp"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "MCP server exposing Plinth connections to Claude (stdio)"
+
+[[bin]]
+name = "plinth-mcp"
+path = "src/main.rs"
+
+[dependencies]
+plinth-core.workspace = true
+plinth-drivers.workspace = true
+rmcp = { version = "3", features = ["server", "transport-io", "macros"] }
+schemars = "1"
+tokio.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+anyhow.workspace = true
+tracing.workspace = true
+tracing-subscriber.workspace = true
+keyring = { workspace = true, features = ["v1"] }
+directories.workspace = true
+
+[dev-dependencies]
+tokio = { workspace = true }

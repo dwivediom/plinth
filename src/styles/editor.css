@@ -1,0 +1,85 @@
+/* ============================================================
+   Query view: CodeMirror editor, query bar, results
+   ============================================================ */
+
+.query { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+.query .editor-pane { display: flex; flex-direction: column; min-height: 80px; flex-shrink: 0; position: relative; }
+.query .editor-host { flex: 1; min-height: 0; overflow: hidden; }
+.query .divider { height: 6px; margin: -3px 0; cursor: row-resize; z-index: 1; flex-shrink: 0; }
+.query .divider:hover { background: color-mix(in srgb, var(--accent) 30%, transparent); }
+.query .results { flex: 1; min-height: 0; display: flex; flex-direction: column; border-top: var(--hairline) solid var(--separator); }
+
+.cm-editor { height: 100%; font: var(--t-mono); background: var(--content); color: var(--label); outline: none !important; }
+.cm-editor.cm-focused { outline: none; }
+.cm-editor .cm-scroller { font-family: var(--font-mono); line-height: 20px; }
+.cm-editor .cm-content { padding: var(--sp-4) 0; caret-color: var(--label); }
+.cm-editor .cm-gutters { background: var(--content); color: var(--label-3); border-right: 0; font-size: 11px; }
+.cm-editor .cm-lineNumbers .cm-gutterElement { padding: 0 var(--sp-4) 0 var(--sp-5); min-width: 36px; }
+.cm-editor .cm-activeLine { background: var(--alt-row); }
+.cm-editor .cm-activeLineGutter { background: transparent; color: var(--label-2); }
+.cm-editor .cm-selectionBackground, .cm-editor.cm-focused .cm-selectionBackground, .cm-editor .cm-content ::selection { background: color-mix(in srgb, var(--accent) 25%, transparent) !important; }
+.cm-editor .cm-cursor { border-left-color: var(--label); }
+.cm-editor .cm-line { padding: 0 var(--sp-5); }
+.cm-editor .cm-tooltip { background: var(--popover); border: 0; box-shadow: var(--shadow-float), 0 0 0 var(--hairline) var(--separator); border-radius: var(--r-control); font: var(--t-callout); color: var(--label); }
+.cm-editor .cm-tooltip.cm-tooltip-autocomplete > ul { font-family: var(--font-mono); font-size: 12px; }
+.cm-editor .cm-tooltip.cm-tooltip-autocomplete > ul > li { padding: 2px var(--sp-4); line-height: 20px; }
+.cm-editor .cm-tooltip.cm-tooltip-autocomplete > ul > li[aria-selected] { background: var(--accent); color: var(--accent-text); }
+.cm-editor .cm-completionIcon { color: var(--label-3); }
+.cm-editor .cm-completionDetail { color: var(--label-3); margin-left: var(--sp-4); }
+.cm-editor .cm-matchingBracket { background: var(--label-4); }
+.cm-editor .cm-err-token { text-decoration: underline wavy var(--red); text-underline-offset: 3px; }
+.cm-editor .cm-placeholder { color: var(--label-3); font-style: normal; }
+
+/* tokens per PLAN-3: keywords accent, strings red, numbers accent 80%, comments label-3 */
+.tok-kw { color: var(--syn-keyword); font-weight: 600; }
+.tok-str { color: var(--syn-string); }
+.tok-num { color: var(--syn-number); }
+.tok-cmt { color: var(--syn-comment); font-style: italic; }
+.tok-op { color: var(--syn-operator); }
+.tok-type { color: var(--syn-type); }
+.tok-fn { color: var(--syn-function); }
+.tok-name { color: var(--syn-name); }
+.tok-punct { color: var(--syn-punct); }
+/* Bracket depth, so a nested expression is readable at a glance. */
+.cm-bracket-1 { color: var(--bracket-1); }
+.cm-bracket-2 { color: var(--bracket-2); }
+.cm-bracket-3 { color: var(--bracket-3); }
+
+/* the bar beneath the editor */
+.querybar { height: 28px; flex-shrink: 0; display: flex; align-items: center; gap: var(--sp-4); padding: 0 10px; background: var(--window); border-top: var(--hairline) solid var(--separator); font: var(--t-subheadline); color: var(--label-2); white-space: nowrap; }
+.querybar .pos { font-variant-numeric: tabular-nums; min-width: 100px; }
+.querybar select.native { height: 20px; font: var(--t-subheadline); padding: 0 var(--sp-2); }
+.querybar .r { margin-left: auto; display: flex; gap: var(--sp-3); align-items: center; }
+.querybar .btn { height: 20px; font: var(--t-subheadline); padding: 0 var(--sp-4); }
+.querybar .btn.default { padding-right: var(--sp-3); }
+.querybar .btn .caret { margin-left: var(--sp-1); display: inline-flex; }
+.querybar .btn .caret svg { width: 10px; height: 10px; }
+.querybar .field { height: 20px; width: 70px; font: var(--t-subheadline); }
+.run-menu { top: 100%; right: 0; margin-top: var(--sp-1); }
+
+.errrow { display: flex; align-items: center; gap: var(--sp-4); padding: 5px var(--sp-5); border-bottom: var(--hairline) solid var(--separator); font: var(--t-callout); color: var(--red); background: var(--alt-row); flex-shrink: 0; }
+.errrow svg { width: 13px; height: 13px; flex-shrink: 0; }
+.errrow code { font-family: var(--font-mono); }
+.errrow .msg { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; user-select: text; -webkit-user-select: text; }
+.errrow .pol { margin-left: auto; color: var(--label-2); display: inline-flex; align-items: center; gap: var(--sp-2); flex-shrink: 0; }
+.timing { padding: 5px var(--sp-5); font: var(--t-subheadline); color: var(--label-3); flex-shrink: 0; display: flex; gap: var(--sp-3); align-items: center; }
+.timing .running { color: var(--label-2); display: inline-flex; align-items: center; gap: var(--sp-2); }
+.timing progress { width: 80px; height: 4px; }
+
+.result-tabs { display: flex; gap: var(--sp-1); padding: var(--sp-2) var(--sp-4) 0; border-bottom: var(--hairline) solid var(--separator); flex-shrink: 0; background: var(--window); }
+.result-tabs button { font: var(--t-subheadline); color: var(--label-2); padding: var(--sp-2) var(--sp-4); border-radius: 5px 5px 0 0; display: inline-flex; gap: var(--sp-2); align-items: center; }
+.result-tabs button[aria-selected="true"] { background: var(--content); color: var(--label); box-shadow: 0 0 0 var(--hairline) var(--separator); }
+.result-tabs button .k { color: var(--label-3); }
+.result-tabs button .e { color: var(--red); }
+.affected { padding: var(--sp-7); color: var(--label-2); font: var(--t-body); }
+.affected b { color: var(--label); font-weight: 600; }
+
+/* Fold gutter and indent guides, kept recessive. */
+.cm-foldGutter span { color: var(--label-4); }
+.cm-foldGutter span:hover { color: var(--label-2); }
+.cm-foldPlaceholder { background: var(--alt-row); color: var(--label-2); border: var(--hairline) solid var(--separator); border-radius: 4px; padding: 0 var(--sp-2); margin: 0 2px; }
+/* Identifiers the schema recognises. lang-sql leaves these untagged, so this
+   is the app's own knowledge showing through: a table reads as a table. */
+/* The schema mark wraps the syntax span, so it has to win over the inner one. */
+.tok-table, .tok-table .tok-name, .tok-table .tok-kw { color: var(--syn-type); font-weight: 500; }
+.tok-column, .tok-column .tok-name, .tok-column .tok-kw { color: var(--syn-name); font-weight: 400; }

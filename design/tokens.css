@@ -1,0 +1,309 @@
+/* ============================================================
+   Design tokens — Apple HIG–inspired. Mirrors design/tokens.json.
+   Import once at the app root. Every colour, size, and spacing
+   value in the UI must reference one of these.
+   ============================================================ */
+
+:root {
+  /* ---- Backgrounds (light) ---- */
+  --window:    #ECECEC;
+  --content:   #FFFFFF;
+  --sidebar:   rgba(236, 236, 236, 0.80);
+  --alt-row:   rgba(0, 0, 0, 0.03);
+  --control:   #FFFFFF;
+  --popover:   rgba(246, 246, 246, 0.92);
+  --separator: rgba(0, 0, 0, 0.10);
+  --grid:      rgba(0, 0, 0, 0.08);
+
+  /* ---- Labels: one colour, four opacities ---- */
+  --label:   rgba(0, 0, 0, 0.85);
+  --label-2: rgba(0, 0, 0, 0.50);
+  --label-3: rgba(0, 0, 0, 0.26);
+  --label-4: rgba(0, 0, 0, 0.10);
+
+  /* ---- Accent: system on Apple platforms, systemBlue elsewhere ---- */
+  --accent:      #007AFF;
+  --accent-text: #FFFFFF;
+  --selection-unfocused: #DCDCDC;
+
+  /* ---- System colours ---- */
+  --green:  #28CD41;
+  --orange: #FF9500;
+  --red:    #FF3B30;
+  --yellow: #FFCC00;
+  --gray:   #8E8E93;
+
+  --shadow-button: 0 0.5px 1px rgba(0, 0, 0, 0.15);
+  --shadow-float:  0 8px 40px rgba(0, 0, 0, 0.25);
+  --scrim:         rgba(0, 0, 0, 0.20);
+
+  /* ---- Type ---- */
+  --font-ui:   -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI Variable", "Segoe UI", system-ui, sans-serif;
+  --font-mono: ui-monospace, "SF Mono", Menlo, "JetBrains Mono", Consolas, monospace;
+
+  /* macOS text styles: font shorthand = weight size/line family */
+  --t-large-title: 700 26px/32px var(--font-ui);
+  --t-title-1:     400 22px/26px var(--font-ui);
+  --t-title-2:     400 17px/22px var(--font-ui);
+  --t-title-3:     600 15px/20px var(--font-ui);
+  --t-headline:    600 13px/16px var(--font-ui);
+  --t-body:        400 13px/16px var(--font-ui);
+  --t-callout:     400 12px/15px var(--font-ui);
+  --t-subheadline: 400 11px/14px var(--font-ui);
+  --t-caption:     400 10px/13px var(--font-ui);
+  --t-mono:        400 12px/20px var(--font-mono);
+
+  /* ---- Space ---- */
+  --sp-1: 2px;  --sp-2: 4px;  --sp-3: 6px;  --sp-4: 8px;
+  --sp-5: 12px; --sp-6: 16px; --sp-7: 20px; --sp-8: 28px;
+
+  /* ---- Shape ---- */
+  --r-control: 6px;
+  --r-popover: 10px;
+  --r-sheet:   12px;
+  --r-pill:    999px;
+
+  /* ---- Size ---- */
+  --h-control:       22px;
+  --h-control-large: 28px;
+  --row-grid:        26px;
+  --row-list:        28px;
+  --row-sidebar:     28px;
+  --h-titlebar:      52px;
+  --h-titlebar-plain:38px;
+  --w-sidebar:       220px;
+  --w-inspector:     260px;
+  --status-dot:      7px;
+  --env-dot:         3px;
+  --icon:            16px;
+  --icon-stroke:     1.5px;
+  --hairline:        1px;
+
+  /* ---- Motion ---- */
+  --ease:        cubic-bezier(0.25, 0.1, 0.25, 1);
+  --dur-sheet:   200ms;
+  --dur-select:  150ms;
+
+  color-scheme: light;
+}
+
+/* Follow the user's macOS accent colour where WebKit exposes it. */
+@supports (color: AccentColor) {
+  :root { --accent: AccentColor; --accent-text: AccentColorText; }
+}
+
+/* Retina hairlines */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 2dppx) {
+  :root { --hairline: 0.5px; }
+}
+
+/* ---- Dark appearance ---- */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --window:    #323232;
+    --content:   #1E1E1E;
+    --sidebar:   rgba(40, 40, 40, 0.80);
+    --alt-row:   rgba(255, 255, 255, 0.04);
+    --control:   rgba(255, 255, 255, 0.10);
+    --popover:   rgba(46, 46, 46, 0.92);
+    --separator: rgba(255, 255, 255, 0.10);
+    --grid:      rgba(255, 255, 255, 0.08);
+    --label:   rgba(255, 255, 255, 0.85);
+    --label-2: rgba(255, 255, 255, 0.55);
+    --label-3: rgba(255, 255, 255, 0.25);
+    --label-4: rgba(255, 255, 255, 0.10);
+    --accent: #0A84FF;
+    --selection-unfocused: #464646;
+    --green: #32D74B; --orange: #FF9F0A; --red: #FF453A; --yellow: #FFD60A; --gray: #98989D;
+    --shadow-button: 0 0.5px 1px rgba(0, 0, 0, 0.40);
+    --shadow-float:  0 8px 40px rgba(0, 0, 0, 0.60);
+    --scrim:         rgba(0, 0, 0, 0.40);
+    color-scheme: dark;
+  }
+  @supports (color: AccentColor) {
+    :root:not([data-theme="light"]) { --accent: AccentColor; }
+  }
+}
+:root[data-theme="dark"] {
+  --window:    #323232;
+  --content:   #1E1E1E;
+  --sidebar:   rgba(40, 40, 40, 0.80);
+  --alt-row:   rgba(255, 255, 255, 0.04);
+  --control:   rgba(255, 255, 255, 0.10);
+  --popover:   rgba(46, 46, 46, 0.92);
+  --separator: rgba(255, 255, 255, 0.10);
+  --grid:      rgba(255, 255, 255, 0.08);
+  --label:   rgba(255, 255, 255, 0.85);
+  --label-2: rgba(255, 255, 255, 0.55);
+  --label-3: rgba(255, 255, 255, 0.25);
+  --label-4: rgba(255, 255, 255, 0.10);
+  --accent: #0A84FF;
+  --selection-unfocused: #464646;
+  --green: #32D74B; --orange: #FF9F0A; --red: #FF453A; --yellow: #FFD60A; --gray: #98989D;
+  --shadow-button: 0 0.5px 1px rgba(0, 0, 0, 0.40);
+  --shadow-float:  0 8px 40px rgba(0, 0, 0, 0.60);
+  --scrim:         rgba(0, 0, 0, 0.40);
+  color-scheme: dark;
+}
+@supports (color: AccentColor) {
+  :root[data-theme="dark"] { --accent: AccentColor; }
+}
+
+/* ============================================================
+   Base rules that enforce the system
+   ============================================================ */
+html, body {
+  margin: 0;
+  background: var(--window);
+  color: var(--label);
+  font: var(--t-body);
+  -webkit-font-smoothing: antialiased;
+  -webkit-user-select: none;
+  user-select: none;
+}
+* { box-sizing: border-box; }
+input, textarea, [contenteditable], .selectable { -webkit-user-select: text; user-select: text; }
+
+/* macOS focus glow — soft, 3.5px, accent at 50%. Never a hard outline. */
+:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3.5px color-mix(in srgb, var(--accent) 50%, transparent);
+}
+
+/* Native form controls pick up the accent — WebKit draws real macOS controls. */
+input[type="checkbox"], input[type="radio"], input[type="range"], progress, select { accent-color: var(--accent); }
+
+/* Numbers align on the decimal, everywhere. */
+.num, td[data-kind="number"] { font-variant-numeric: tabular-nums; text-align: right; }
+
+/* Selection follows window focus, like every native list. */
+[aria-selected="true"] { background: var(--accent); color: var(--accent-text); }
+.window-inactive [aria-selected="true"] { background: var(--selection-unfocused); color: var(--label); }
+
+/* Motion: colour/opacity only; sheets and popovers get their own transitions. */
+button, [role="row"], [role="option"], .segment {
+  transition: background-color var(--dur-select) var(--ease), color var(--dur-select) var(--ease);
+}
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; animation: none !important; }
+}
+
+/* ── Data-viz palette ──────────────────────────────────────────────────────
+   Eight categorical slots in a fixed order, never cycled. Both modes are
+   selected, not flipped, and both were run through the data-viz validator
+   against this app's own surfaces (--content: #FFFFFF / #1E1E1E):
+     light  CVD ΔE 9.1 · normal-vision ΔE 19.6 · three slots under 3:1 →
+            the relief rule applies, so charts ship direct labels + a table view
+     dark   CVD ΔE 8.4 · normal-vision ΔE 19.3 · all ≥ 3:1
+   Re-run `validate_palette.js` before changing any value here.            */
+:root {
+  --chart-surface: var(--content);
+  --series-1: #2a78d6;
+  --series-2: #eb6834;
+  --series-3: #1baf7a;
+  --series-4: #eda100;
+  --series-5: #e87ba4;
+  --series-6: #008300;
+  --series-7: #4a3aa7;
+  --series-8: #e34948;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --series-1: #3987e5;
+    --series-2: #d95926;
+    --series-3: #199e70;
+    --series-4: #c98500;
+    --series-5: #d55181;
+    --series-6: #008300;
+    --series-7: #9085e9;
+    --series-8: #e66767;
+  }
+}
+:root[data-theme="dark"] {
+  --series-1: #3987e5;
+  --series-2: #d95926;
+  --series-3: #199e70;
+  --series-4: #c98500;
+  --series-5: #d55181;
+  --series-6: #008300;
+  --series-7: #9085e9;
+  --series-8: #e66767;
+}
+
+/* Sequential heat ramp for the query plan — one hue, light→dark, five steps.
+   Validated as an ordinal ramp against this app's surfaces:
+     light  monotone L · gaps ≥ 0.06 · light end 2.11:1 on #FFFFFF
+     dark   monotone L · gaps ≥ 0.06 · light end 2.06:1 on #1E1E1E
+   Hot is the end that stands out against the surface, so the ramps invert. */
+:root {
+  --heat-1: #86b6ef;
+  --heat-2: #5598e7;
+  --heat-3: #2a78d6;
+  --heat-4: #1c5cab;
+  --heat-5: #0d366b;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --heat-1: #184f95;
+    --heat-2: #2a78d6;
+    --heat-3: #5598e7;
+    --heat-4: #86b6ef;
+    --heat-5: #b7d3f6;
+  }
+}
+:root[data-theme="dark"] {
+  --heat-1: #184f95;
+  --heat-2: #2a78d6;
+  --heat-3: #5598e7;
+  --heat-4: #86b6ef;
+  --heat-5: #b7d3f6;
+}
+
+/* ── Syntax palette ────────────────────────────────────────────────────────
+   Distinct hues per token class, in the lineage of VS Code's Light+/Dark+,
+   tuned to sit on this app's editor surface. Each class is its own hue so a
+   statement reads by shape: keywords, the things being named, the values.   */
+:root {
+  --syn-keyword:  #0F52BA;
+  --syn-function: #7A5B00;
+  --syn-string:   #A31515;
+  --syn-number:   #0B7A4B;
+  --syn-comment:  #6E7781;
+  --syn-type:     #1F6F73;
+  --syn-name:     #113A80;
+  --syn-operator: #3A3A3C;
+  --syn-punct:    #6E6E73;
+  --bracket-1:    #B8860B;
+  --bracket-2:    #A64DA6;
+  --bracket-3:    #0F72C4;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --syn-keyword:  #569CD6;
+    --syn-function: #DCDCAA;
+    --syn-string:   #CE9178;
+    --syn-number:   #B5CEA8;
+    --syn-comment:  #7B9E6B;
+    --syn-type:     #4EC9B0;
+    --syn-name:     #9CDCFE;
+    --syn-operator: #D4D4D4;
+    --syn-punct:    #9A9A9E;
+    --bracket-1:    #FFD700;
+    --bracket-2:    #DA70D6;
+    --bracket-3:    #57A6FF;
+  }
+}
+:root[data-theme="dark"] {
+  --syn-keyword:  #569CD6;
+  --syn-function: #DCDCAA;
+  --syn-string:   #CE9178;
+  --syn-number:   #B5CEA8;
+  --syn-comment:  #7B9E6B;
+  --syn-type:     #4EC9B0;
+  --syn-name:     #9CDCFE;
+  --syn-operator: #D4D4D4;
+  --syn-punct:    #9A9A9E;
+  --bracket-1:    #FFD700;
+  --bracket-2:    #DA70D6;
+  --bracket-3:    #57A6FF;
+}

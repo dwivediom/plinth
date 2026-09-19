@@ -1,0 +1,46 @@
+[workspace]
+resolver = "2"
+members = [
+  "crates/core",
+  "crates/drivers",
+  "crates/mcp",
+  "src-tauri",
+]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+license = "AGPL-3.0-only"
+repository = "https://github.com/od/plinth"
+
+[workspace.dependencies]
+plinth-core    = { path = "crates/core" }
+plinth-drivers = { path = "crates/drivers" }
+
+tokio        = { version = "1", features = ["rt-multi-thread", "macros", "sync", "time", "fs", "io-util", "process", "signal"] }
+async-trait  = "0.1"
+futures      = "0.3"
+serde        = { version = "1", features = ["derive"] }
+serde_json   = { version = "1", features = ["preserve_order", "arbitrary_precision"] }
+thiserror    = "2"
+anyhow       = "1"
+uuid         = { version = "1", features = ["v4", "serde"] }
+chrono       = { version = "0.4", features = ["serde"] }
+bigdecimal   = { version = "0.4", features = ["serde"] }
+base64       = "0.22"
+tracing      = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+sqlparser    = "0.63"
+sqlx         = { version = "0.9", default-features = false, features = [
+  "runtime-tokio", "tls-rustls", "postgres", "mysql", "sqlite",
+  "chrono", "uuid", "json", "bigdecimal", "migrate",
+] }
+keyring      = { version = "4", default-features = false, features = ["apple-native-keyring-store", "windows-native-keyring-store", "zbus-secret-service-keyring-store", "db-keystore"] }
+directories  = "6"
+parking_lot  = "0.12"
+dashmap      = "6"
+
+[profile.release]
+lto = "thin"
+codegen-units = 1
+strip = true
