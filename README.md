@@ -86,8 +86,24 @@ cargo test --workspace     # engine, drivers (SQLite), MCP smoke test
 npm run build              # tsc --strict + vite
 ```
 
-Postgres/MySQL driver tests are `#[ignore]`d unless `PLINTH_TEST_PG_URL` / `PLINTH_TEST_MYSQL_URL` are set:
-`cargo test -p plinth-drivers -- --ignored`.
+```sh
+npm run check              # tsc + vitest + cargo test — the same gate CI runs
+npm test                   # the frontend tests alone
+```
+
+SQLite and the dialect tests run with no setup. Postgres and MySQL need a
+server, so their suites are `#[ignore]`d until you point them at one:
+
+```sh
+PLINTH_TEST_PG_URL=postgres://user:pass@localhost/db \
+  cargo test -p plinth-drivers --test postgres -- --ignored
+PLINTH_TEST_MYSQL_URL=mysql://user:pass@localhost/db \
+  cargo test -p plinth-drivers --test mysql -- --ignored
+```
+
+CI runs all of it on every push — types, unit tests and clippy on Linux, the
+driver suites against real `postgres` and `mysql` service containers, and a
+compile of the workspace on macOS, Windows and Linux.
 
 ## Connect Claude
 

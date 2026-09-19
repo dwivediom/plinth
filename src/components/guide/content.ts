@@ -524,6 +524,7 @@ export const COMPARE: CompareRow[] = [
 
 /** The honest half. A tour that only lists wins is an advertisement. */
 export const NOT_YET: string[] = [
+  "The local models are the weak half of the local AI. Asked to rewrite a slow query, llama3.1:8b returned SQL PostgreSQL refused to parse on two attempts out of three. Nothing it writes is trusted — every statement is measured or shown to you first — so a bad answer costs nothing but a moment. But \"local AI\" promises more than an 8B model delivers today.",
   "Visual EXPLAIN is Postgres only — MySQL's plan JSON has a different shape and is refused with a clear message rather than guessed at.",
   "SSH tunnels and AWS SSM are designed but not built.",
   "MongoDB and Redis are not here yet; Postgres, MySQL/MariaDB and SQLite are.",
