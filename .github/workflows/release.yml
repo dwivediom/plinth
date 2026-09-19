@@ -1,0 +1,81 @@
+# Bundling, as opposed to compiling.
+#
+# ci.yml proves the app *compiles* on all three platforms on every push, which
+# is the cheap question and the one worth asking often. This asks the expensive
+# one — does it package, install and launch — and it asks it on a tag, because
+# that is the only moment the answer matters.
+#
+# The Windows installer is the reason this exists at all: Tauri cannot
+# cross-compile to Windows from macOS, so an .exe can only come off a Windows
+# runner. The same job makes the .dmg and the .deb/.AppImage on the way past.
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+  # So a bundle can be produced without cutting a version.
+  workflow_dispatch:
+
+jobs:
+  bundle:
+    name: Bundle for ${{ matrix.label }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # One .dmg for Intel and Apple Silicon, rather than two downloads and
+          # a question the person has to answer before they can try the app.
+          - os: macos-latest
+            label: macOS (universal)
+            args: --target universal-apple-darwin
+            rust-targets: aarch64-apple-darwin,x86_64-apple-darwin
+          - os: windows-latest
+            label: Windows
+            args: ""
+            rust-targets: ""
+          - os: ubuntu-22.04
+            label: Linux
+            args: ""
+            rust-targets: ""
+    runs-on: ${{ matrix.os }}
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.rust-targets }}
+      - uses: Swatinem/rust-cache@v2
+
+      # 22.04 rather than latest: the AppImage is only portable back to the
+      # glibc it was linked against, so the oldest runner is the right one.
+      - name: Linux system dependencies
+        if: matrix.os == 'ubuntu-22.04'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev libgtk-3-dev librsvg2-dev \
+            libayatana-appindicator3-dev patchelf libssl-dev
+
+      - run: npm ci
+
+      - uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          # Draft, so the release is read before anyone can download it — and
+          # so a run that fails on one platform does not publish a release that
+          # silently has no Windows build in it.
+          tagName: ${{ github.ref_type == 'tag' && github.ref_name || format('nightly-{0}', github.sha) }}
+          releaseName: Plinth ${{ github.ref_type == 'tag' && github.ref_name || 'nightly' }}
+          releaseDraft: true
+          prerelease: ${{ github.ref_type != 'tag' }}
+          releaseBody: |
+            Nothing here is signed yet. macOS will say the app is damaged —
+            it is not; right-click the app and choose Open, or run
+            `xattr -dr com.apple.quarantine /Applications/Plinth.app`.
+            Windows SmartScreen will warn once: More info → Run anyway.
+          args: ${{ matrix.args }}
